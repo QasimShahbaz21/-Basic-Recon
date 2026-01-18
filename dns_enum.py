@@ -7,6 +7,11 @@ def dns_enumeration(domain):
         for ip in dns.resolver.resolve(domain, 'A'):
             print(ip.to_text())
 
+        # AAAA Record
+        print("\n[+] AAAA Records:")
+        for ip in dns.resolver.resolve(domain, 'AAAA'):
+            print(ip.to_text())
+
         # MX Record
         print("\n[+] MX Records:")
         for mx in dns.resolver.resolve(domain, 'MX'):
@@ -16,6 +21,11 @@ def dns_enumeration(domain):
         print("\n[+] NS Records:")
         for ns in dns.resolver.resolve(domain, 'NS'):
             print(ns.to_text())
+
+        # TXT Record
+        print("\n[+] TXT Records:")
+        for txt in dns.resolver.resolve(domain, 'TXT'):
+            print(txt.to_text())
 
     except dns.resolver.NoAnswer:
         print("[-] No DNS records found")
