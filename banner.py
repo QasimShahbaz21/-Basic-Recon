@@ -3,33 +3,41 @@ import socket
 def grab_banner(ip, port):
     try:
         # Create TCP socket
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.settimeout(5)
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(5)
 
         # Connect to target
-        s.connect((ip, port))
+        sock.connect((ip, port))
 
-        # Send a simple request (works for many services)
-        s.sendall(b"Hello\r\n")
+        # Send basic request
+        request = b"HEAD / HTTP/1.0\r\n\r\n"
+        sock.sendall(request)
 
         # Receive banner
-        banner = s.recv(1024)
+        banner = sock.recv(4096)
 
         if banner:
-            print("\n[+] Banner received:")
-            print(banner.decode(errors="ignore"))
+            clean_banner = banner.decode("utf-8", errors="ignore").strip()
+            print("\n[+] Banner received:\n")
+            print(clean_banner)
         else:
             print("\n[-] No banner received")
 
-        s.close()
+        sock.close()
 
     except socket.timeout:
         print("\n[!] Connection timed out")
-    except socket.error as e:
-        print(f"\n[!] Socket error: {e}")
+    except ConnectionRefusedError:
+        print("\n[!] Connection refused")
+    except socket.gaierror:
+        print("\n[!] Invalid IP or hostname")
+    except Exception as e:
+        print(f"\n[!] Error: {e}")
 
 if __name__ == "__main__":
-    ip = input("Enter target IP: ")
-    port = int(input("Enter target port: "))
-
-    grab_banner(ip, port)
+    ip = input("Enter target IP or domain: ")
+    try:
+        port = int(input("Enter target port: "))
+        grab_banner(ip, port)
+    except ValueError:
+        print("[!] Port must be a number")
